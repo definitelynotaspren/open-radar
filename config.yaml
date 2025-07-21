@@ -1,0 +1,8 @@
+sources:
+  rss: ["https://example.com/feed1.xml", "https://example.com/feed2.xml"]
+  flight_data: "https://public-api.adsbexchange.com"
+  permit_data: "https://city.gov/permit/feed"
+
+temporal_window_hours: 48
+geojson_output: "./data/geojson/merged_events.geojson"
+duckdb_path: "./data/events.db"
