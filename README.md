@@ -31,3 +31,18 @@ v.in.csv input=data/events.csv x=longitude y=latitude output=events
 
 GeoJSON outputs can be imported with `v.import` if the GDAL library is available.
 
+## Automated ingestion with GitHub Actions
+
+The repository includes a workflow that runs `ingest.py` on a schedule. The
+workflow expects two secrets to be defined in the repository settings:
+
+* `FLIGHT_DATA_URL` – private endpoint for flight data
+* `PERMIT_DATA_URL` – private endpoint for permit data
+
+These secrets are exposed as environment variables during the run so that the
+placeholders in `config.yaml` can be resolved. The workflow installs the Python
+dependencies, executes the ingestion script, and commits any updated GeoJSON or
+CSV files back to the repository.
+
+You can also trigger the job manually from the "Actions" tab.
+

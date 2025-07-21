@@ -2,7 +2,7 @@
 import json
 import os
 from datetime import datetime, timedelta
-from typing import List, Dict
+from typing import List, Dict, Any
 
 import duckdb
 import feedparser
@@ -13,9 +13,21 @@ from dateutil import parser as date_parser
 
 CONFIG_FILE = 'config.yaml'
 
+def _resolve_env(obj: Any) -> Any:
+    """Recursively expand environment variables in strings."""
+    if isinstance(obj, dict):
+        return {k: _resolve_env(v) for k, v in obj.items()}
+    if isinstance(obj, list):
+        return [_resolve_env(v) for v in obj]
+    if isinstance(obj, str):
+        return os.path.expandvars(obj)
+    return obj
+
+
 def load_config(path: str) -> Dict:
     with open(path, 'r') as f:
-        return yaml.safe_load(f)
+        data = yaml.safe_load(f)
+    return _resolve_env(data)
 
 
 def init_db(db_path: str) -> duckdb.DuckDBPyConnection:
