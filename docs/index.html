@@ -1,0 +1,60 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="utf-8" />
+    <title>Open Radar Map</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
+    <style>
+        #map { height: 90vh; }
+        body { font-family: Arial, sans-serif; }
+        .download-btn { margin: 10px; }
+    </style>
+</head>
+<body>
+    <h1>Open Radar Map</h1>
+    <button class="download-btn" onclick="window.location='flagged_last_7_days.geojson'">Download last 7 days flagged entries</button>
+    <div id="map"></div>
+
+    <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+    <script>
+        var map = L.map('map').setView([0, 0], 2);
+        L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+            maxZoom: 19,
+            attribution: '© OpenStreetMap'
+        }).addTo(map);
+
+        function onEachFeature(feature, layer) {
+            if (feature.properties && feature.properties.title) {
+                layer.bindPopup('<strong>' + feature.properties.title + '</strong><br/>' +
+                    (feature.properties.description || ''));
+            }
+        }
+
+        function addLayer(url, options) {
+            fetch(url)
+                .then(resp => resp.json())
+                .then(data => {
+                    L.geoJSON(data, options).addTo(map);
+                });
+        }
+
+        addLayer('..' + '/'+ 'data/geojson/merged_events.geojson', {
+            filter: f => f.properties.source_type === 'permit',
+            onEachFeature: onEachFeature,
+            pointToLayer: (f, latlng) => L.circleMarker(latlng, {color: 'blue'})
+        });
+
+        addLayer('..' + '/'+ 'data/geojson/merged_events.geojson', {
+            filter: f => f.properties.source_type === 'flight',
+            onEachFeature: onEachFeature,
+            pointToLayer: (f, latlng) => L.circleMarker(latlng, {color: 'green'})
+        });
+
+        addLayer('flagged_zones.geojson', {
+            onEachFeature: onEachFeature,
+            pointToLayer: (f, latlng) => L.circleMarker(latlng, {color: 'red'})
+        });
+    </script>
+</body>
+</html>
