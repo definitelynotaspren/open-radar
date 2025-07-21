@@ -1,0 +1,6 @@
+# Ignore generated database
+/data/*.db
+# Ignore generated geojson files
+/data/geojson/*.geojson
+/docs/flagged_zones.geojson
+/docs/flagged_last_7_days.geojson

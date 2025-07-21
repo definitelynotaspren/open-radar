@@ -6,3 +6,4 @@ requests
 flask
 jinja2
 python-dateutil
+PyYAML
