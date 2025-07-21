@@ -1,0 +1,23 @@
+{
+  "type": "Feature",
+  "geometry": {
+    "type": "Point",
+    "coordinates": [-122.4194, 37.7749]
+  },
+  "properties": {
+    "id": "event_20250721_001",
+    "timestamp": "2025-07-21T10:30:00Z",
+    "location_name": "San Francisco, CA",
+    "source_type": "flight_tracking",
+    "event_type": "aircraft_loop",
+    "tags": ["ice_cream", "high_altitude", "repeat_event"],
+    "confidence": 0.87,
+    "overlap_score": 2,
+    "description": "Repeat flight circling detention corridor with matched permit activity within 24 hrs.",
+    "data_source": "adsbexchange",
+    "source_link": "https://adsbexchange.com/event?id=20250721_001",
+    "related_entities": ["Target Hospitality", "CoreCivic"],
+    "notes": "Matched prior RSS feed item for local contractor hiring + municipal permit issued same day.",
+    "reviewed": false
+  }
+}
