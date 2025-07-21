@@ -4,7 +4,8 @@ This project ingests event data from multiple sources and exports both GeoJSON a
 
 ## Running
 
-Install requirements with `pip install -r requirements.txt` then run `python ingest.py`.
+Install requirements with `pip install -r requirements.txt` then run `python ingest.py` to generate GeoJSON and CSV outputs.
+You can also start the FastAPI server for interactive ingestion using `uvicorn server:app`.
 
 ## Output
 
@@ -46,3 +47,5 @@ CSV files back to the repository.
 
 You can also trigger the job manually from the "Actions" tab.
 
+
+The private dataset is available to authorized users. For access requests please email [woolnthorn@gmail.com](mailto:woolnthorn@gmail.com).
