@@ -2,60 +2,53 @@
 <html>
 <head>
     <meta charset="utf-8" />
-    <title>Open Radar Map</title>
+    <title>Open Radar Data Ingestor</title>
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
     <style>
-        #map { height: 90vh; }
         body { font-family: Arial, sans-serif; }
+        .upload-section { margin: 20px 0; }
         .download-btn { margin: 10px; }
+        .admin-only { display: none; }
     </style>
 </head>
 <body>
-    <h1>Open Radar Map</h1>
-    <button class="download-btn" onclick="window.location='flagged_last_7_days.geojson'">Download last 7 days flagged entries</button>
-    <button class="download-btn" onclick="window.location='geojson_template.geojson'">Download GEOJSON template</button>
-    <div id="map"></div>
-
-    <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
-    <script>
-        var map = L.map('map').setView([0, 0], 2);
-        L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
-            maxZoom: 19,
-            attribution: '© OpenStreetMap'
-        }).addTo(map);
-
-        function onEachFeature(feature, layer) {
-            if (feature.properties && feature.properties.title) {
-                layer.bindPopup('<strong>' + feature.properties.title + '</strong><br/>' +
-                    (feature.properties.description || ''));
-            }
-        }
-
-        function addLayer(url, options) {
-            fetch(url)
-                .then(resp => resp.json())
-                .then(data => {
-                    L.geoJSON(data, options).addTo(map);
-                });
-        }
-
-        addLayer('..' + '/'+ 'data/geojson/merged_events.geojson', {
-            filter: f => f.properties.source_type === 'permit',
-            onEachFeature: onEachFeature,
-            pointToLayer: (f, latlng) => L.circleMarker(latlng, {color: 'blue'})
-        });
-
-        addLayer('..' + '/'+ 'data/geojson/merged_events.geojson', {
-            filter: f => f.properties.source_type === 'flight',
-            onEachFeature: onEachFeature,
-            pointToLayer: (f, latlng) => L.circleMarker(latlng, {color: 'green'})
-        });
-
-        addLayer('flagged_zones.geojson', {
-            onEachFeature: onEachFeature,
-            pointToLayer: (f, latlng) => L.circleMarker(latlng, {color: 'red'})
-        });
-    </script>
+    <h1>Open Radar Data Ingestor</h1>
+    <form id="dataForm" enctype="multipart/form-data">
+        <label>Data Source Type:</label>
+        <select id="sourceType" multiple>
+            <option value="rss">RSS Feed</option>
+            <option value="json">JSON File</option>
+            <option value="csv">CSV File</option>
+            <option value="url">URL</option>
+        </select><br><br>
+        <label>Upload Files (JSON/CSV):</label>
+        <input type="file" id="fileUpload" multiple accept=".csv,.json"><br><br>
+        <label>Paste URLs (one per line):</label>
+        <textarea id="urlInput" rows="3" cols="50"></textarea><br><br>
+        <label>Flag Reason:</label>
+        <select id="flagReason">
+            <option value="Unusual activity">Unusual activity</option>
+            <option value="Restricted airspace">Restricted airspace</option>
+            <option value="Data anomaly">Data anomaly</option>
+            <option value="Public safety">Public safety</option>
+            <option value="Possible privacy concern">Possible privacy concern</option>
+            <option value="Possible residential address">Possible residential address</option>
+            <option value="Other">Other</option>
+        </select><br><br>
+        <label>AI Model API Key:</label>
+        <input type="password" id="apiKey"><br><br>
+        <button type="submit">Run Ingest</button>
+    </form>
+    <div id="status"></div>
+    <button class="download-btn" id="downloadPublic">Download Public Data</button>
+    <button class="download-btn admin-only" id="downloadPrivate">Download Private Data</button>
+    <div id="contactPrompt" style="display:none;">
+        <p>Request access to private dataset: <a href="mailto:woolnthorn@gmail.com">Contact Us</a></p>
+    </div>
+    <div class="admin-only" id="auditLogSection">
+        <h2>Audit Log</h2>
+        <div id="auditLog"></div>
+    </div>
+    <script src="main.js"></script>
 </body>
 </html>
