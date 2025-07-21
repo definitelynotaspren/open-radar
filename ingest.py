@@ -166,6 +166,16 @@ def export_geojson(conn: duckdb.DuckDBPyConnection, out_path: str):
         json.dump({'type': 'FeatureCollection', 'features': features}, f)
 
 
+def export_csv(conn: duckdb.DuckDBPyConnection, out_path: str):
+    """Export events to a simple CSV for easy import in tools like GRASS."""
+    os.makedirs(os.path.dirname(out_path), exist_ok=True)
+    df = conn.execute("SELECT * FROM events").fetchdf()
+    if df.empty:
+        df.to_csv(out_path, index=False)
+        return
+    df.to_csv(out_path, index=False)
+
+
 def export_flagged(conn: duckdb.DuckDBPyConnection, cfg: Dict, docs_dir: str):
     temporal_window = cfg.get('temporal_window_hours', 48)
     window_start = datetime.utcnow() - timedelta(hours=temporal_window)
@@ -225,6 +235,8 @@ def main():
     conn = init_db(cfg['duckdb_path'])
     load_data(cfg, conn)
     export_geojson(conn, cfg['geojson_output'])
+    if cfg.get('csv_output'):
+        export_csv(conn, cfg['csv_output'])
     export_flagged(conn, cfg, docs_dir='docs')
     print('Ingestion complete.')
 

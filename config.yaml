@@ -5,4 +5,5 @@ sources:
 
 temporal_window_hours: 48
 geojson_output: "./data/geojson/merged_events.geojson"
+csv_output: "./data/events.csv"
 duckdb_path: "./data/events.db"
