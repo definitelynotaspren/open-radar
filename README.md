@@ -1,4 +1,5 @@
 # Open Radar
+[![Ask DeepWiki](https://deepwiki.com/badge.svg)](https://deepwiki.com/definitelynotaspren/open-radar)
 
 This project ingests event data from multiple sources and exports both GeoJSON and CSV artifacts. The resulting files can be visualized in the provided web map or imported into external GIS tools.
 
