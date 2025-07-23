@@ -140,7 +140,10 @@ def insert_events(conn: duckdb.DuckDBPyConnection, rows: List[Dict]):
     df = pd.DataFrame(rows)
     start_id = conn.execute("SELECT COALESCE(MAX(id), 0) + 1 FROM events").fetchone()[0]
     df.insert(0, 'id', range(start_id, start_id + len(df)))
-    conn.execute("INSERT INTO events VALUES", df)
+    conn.executemany(
+        "INSERT INTO events VALUES (?, ?, ?, ?, ?, ?, ?, ?)",
+        df.values.tolist()
+    )
 
 
 def load_data(cfg: Dict, conn: duckdb.DuckDBPyConnection):
