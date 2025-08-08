@@ -1,0 +1,9 @@
+<?xml version="1.0"?>
+<rss><channel>
+  <item>
+    <title>Robbery in London</title>
+    <link>http://example.com/2</link>
+    <description>Police report a robbery in London.</description>
+    <pubDate>Tue, 02 Jan 2024 00:00:00 GMT</pubDate>
+  </item>
+</channel></rss>

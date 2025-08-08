@@ -1,12 +1,14 @@
+duckdb>=1.1.0
 feedparser
-duckdb
-geojson
 pandas
 requests
-flask
-jinja2
+pyyaml
 python-dateutil
-PyYAML
-fastapi
-uvicorn
-python-multipart
+dateparser
+spacy>=3.7
+geopy
+trafilatura
+newspaper3k
+simhash
+streamlit
+# After install run: python -m spacy download en_core_web_sm
