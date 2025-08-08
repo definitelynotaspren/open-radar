@@ -1,9 +1,8 @@
 sources:
   rss: ["https://example.com/feed1.xml", "https://example.com/feed2.xml"]
-  flight_data: "${FLIGHT_DATA_URL}"
-  permit_data: "${PERMIT_DATA_URL}"
-
-temporal_window_hours: 48
-geojson_output: "./data/geojson/merged_events.geojson"
-csv_output: "./data/events.csv"
+  json: []
 duckdb_path: "./data/events.db"
+sqlite_path: "./data/articles.db"
+vault_path: "./vault"
+geojson_output: "./data/geojson/events.geojson"
+csv_output: "./data/events.csv"

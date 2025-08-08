@@ -1,52 +1,80 @@
 # Open Radar
-[![Ask DeepWiki](https://deepwiki.com/badge.svg)](https://deepwiki.com/definitelynotaspren/open-radar)
 
-This project ingests event data from multiple sources and exports both GeoJSON and CSV artifacts. The resulting files can be visualized in the provided web map or imported into external GIS tools.
+Open Radar ingests news feeds and exports geocoded events for mapping or note taking.
 
-## Running
+## Setup (Windows/macOS)
 
-Install requirements with `pip install -r requirements.txt` then run `python ingest.py` to generate GeoJSON and CSV outputs.
-You can also start the FastAPI server for interactive ingestion using `uvicorn server:app`.
+1. Install **Python 3.11**.
+2. Create a virtual environment and activate it:
+   - **Windows:**
+     ```powershell
+     python -m venv .venv
+     .\.venv\Scripts\Activate.ps1
+     ```
+   - **macOS:**
+     ```bash
+     python -m venv .venv
+     source .venv/bin/activate
+     ```
+3. Install dependencies and download the spaCy model:
+   ```bash
+   pip install -r requirements.txt
+   python -m spacy download en_core_web_sm
+   ```
 
-## Output
+## Configuration
 
-- `data/geojson/merged_events.geojson` – combined events
-- `data/events.csv` – CSV export compatible with tools like GRASS GIS
+Edit `config.yaml` to set:
 
-## Public data sources for testing
-
-The default configuration uses placeholder URLs. Below are freely available data sets that can be used during testing:
-
-- **US state boundaries** – `https://raw.githubusercontent.com/PublicaMundi/MappingAPI/master/data/geojson/us-states.json`
-- **Airports** – `https://raw.githubusercontent.com/datasets/airport-codes/master/data/airport-codes.csv`
-- **Example flight paths** – `https://raw.githubusercontent.com/plotly/datasets/master/2011_february_aa_flight_paths.csv`
-
-These data sets can populate the RSS, flight, or permit fields by placing the files under a local web server or adjusting `config.yaml` to point directly at the files.
-
-### Using with GRASS GIS
-
-The exported `events.csv` file contains longitude and latitude columns named `longitude` and `latitude`. Import it using:
-
-```bash
-v.in.csv input=data/events.csv x=longitude y=latitude output=events
+```yaml
+sources:
+  rss: ["https://example.com/feed1.xml"]
+  json: []
+duckdb_path: data/events.db
+sqlite_path: data/articles.db
+vault_path: /path/to/ObsidianVault
+geojson_output: data/events.geojson
+csv_output: data/events.csv
 ```
 
-GeoJSON outputs can be imported with `v.import` if the GDAL library is available.
+`vault_path` is optional but enables export of events as Obsidian notes.
 
-## Automated ingestion with GitHub Actions
+## Ingesting
 
-The repository includes a workflow that runs `ingest.py` on a schedule. The
-workflow expects two secrets to be defined in the repository settings:
+Fetch, geocode and store events:
 
-* `FLIGHT_DATA_URL` – private endpoint for flight data
-* `PERMIT_DATA_URL` – private endpoint for permit data
+```bash
+python ingest.py --update
+```
 
-These secrets are exposed as environment variables during the run so that the
-placeholders in `config.yaml` can be resolved. The workflow installs the Python
-dependencies, executes the ingestion script, and commits any updated GeoJSON or
-CSV files back to the repository.
+Additional flags:
 
-You can also trigger the job manually from the "Actions" tab.
+- `--dry-run` – process but do not write to databases.
+- `--since YYYY-MM-DD` – only process recent items.
 
+## Streamlit dashboard
 
-The private dataset is available to authorized users. For access requests please email [woolnthorn@gmail.com](mailto:woolnthorn@gmail.com).
+Launch the interactive dashboard:
+
+```bash
+streamlit run server.py
+```
+
+Use the sidebar to filter by date, source, event type, or full‑text search (powered by SQLite FTS). Export filtered data to GeoJSON, CSV, or Obsidian.
+
+## Obsidian usage
+
+Events exported to Obsidian appear under `News/Events/YYYY-MM-DD/`. Example Dataview query:
+
+```dataview
+table title, event_time
+from "News/Events"
+```
+
+## Scheduling
+
+Automate ingestion with **Task Scheduler** (Windows) or **cron** (macOS): schedule `python ingest.py --update` at your desired frequency.
+
+## Geocoding policy & cache
+
+Geocoding uses **Nominatim** via `geopy` and stores results in a local SQLite cache to reduce repeated lookups. Please respect the [Nominatim usage policy](https://operations.osmfoundation.org/policies/nominatim/).
