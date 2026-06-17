@@ -31,7 +31,8 @@ def main() -> None:
 
     # Filters
     min_date, max_date = df["event_time"].min(), df["event_time"].max()
-    start, end = st.sidebar.date_input("Date range", [min_date, max_date])
+    date_range = st.sidebar.date_input("Date range", [min_date, max_date])
+    start, end = (date_range[0], date_range[-1]) if len(date_range) == 2 else (date_range[0], date_range[0])
     sources = st.sidebar.multiselect("Source", df["source"].unique())
     types = st.sidebar.multiselect("Event type", df["event_type"].unique())
     query = st.sidebar.text_input("Text search")
@@ -80,7 +81,7 @@ def main() -> None:
     st.sidebar.write("Last run:", datetime.fromtimestamp(Path(cfg["duckdb_path"]).stat().st_mtime))
     if st.sidebar.button("Run update now"):
         subprocess.run(["python", "ingest.py", "--config", cfg_path, "--update"], check=False)
-        st.experimental_rerun()
+        st.rerun()
 
 
 if __name__ == "__main__":

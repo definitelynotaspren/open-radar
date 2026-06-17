@@ -1,8 +1,17 @@
 sources:
   rss: ["https://example.com/feed1.xml", "https://example.com/feed2.xml"]
   json: []
+
+# PostGIS DSN — set this (or POSTGIS_DSN env var) to enable the live QGIS backend.
+# Example: "postgresql://user:pass@localhost:5432/radar"
+# Leave blank to fall back to DuckDB.
+postgis_dsn: ""
+
+# DuckDB / SQLite fallback paths (used when postgis_dsn is empty)
 duckdb_path: "./data/events.db"
 sqlite_path: "./data/articles.db"
+geocode_cache: "./data/geocode_cache.sqlite"
+
 vault_path: "./vault"
 geojson_output: "./data/geojson/events.geojson"
 csv_output: "./data/events.csv"

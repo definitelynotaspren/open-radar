@@ -2,7 +2,7 @@
 from __future__ import annotations
 
 from collections import deque
-from datetime import datetime, timedelta
+from datetime import datetime, timedelta, timezone
 from typing import Deque, Tuple
 
 try:  # pragma: no cover - dependency optional
@@ -20,11 +20,12 @@ def simhash_of(text: str) -> int:
 
 
 def is_dupe(simhash: int, window_hours: int = 24) -> bool:
-    cutoff = datetime.utcnow() - timedelta(hours=window_hours)
+    now = datetime.now(timezone.utc)
+    cutoff = now - timedelta(hours=window_hours)
     while _seen and _seen[0][1] < cutoff:
         _seen.popleft()
     for h, _ in _seen:
         if h == simhash:
             return True
-    _seen.append((simhash, datetime.utcnow()))
+    _seen.append((simhash, now))
     return False

@@ -1,7 +1,8 @@
 """Geocoding with SQLite cache."""
 from __future__ import annotations
 
-from datetime import datetime
+from datetime import datetime, timezone
+from pathlib import Path
 import sqlite3
 import time
 from typing import Tuple
@@ -14,6 +15,7 @@ except Exception:  # pragma: no cover
 
 class GeoCoder:
     def __init__(self, cache_sqlite_path: str, user_agent: str = "open-radar"):
+        Path(cache_sqlite_path).parent.mkdir(parents=True, exist_ok=True)
         self.conn = sqlite3.connect(cache_sqlite_path)
         self.conn.execute(
             """
@@ -37,13 +39,14 @@ class GeoCoder:
             self.geocoder = Nominatim(user_agent=user_agent)
 
     def geocode(self, text: str) -> Tuple[float | None, float | None, float | None]:
-        cur = self.conn.execute("SELECT lat, lon, accuracy FROM geocache WHERE query=?", (text,))
+        key = text.strip().casefold()
+        cur = self.conn.execute("SELECT lat, lon, accuracy FROM geocache WHERE query=?", (key,))
         row = cur.fetchone()
         if row:
             return row
         time.sleep(1)
         try:
-            loc = self.geocoder.geocode(text)
+            loc = self.geocoder.geocode(key)
         except Exception:
             loc = None
         if loc:
@@ -54,7 +57,7 @@ class GeoCoder:
             lat = lon = accuracy = None
         self.conn.execute(
             "INSERT OR REPLACE INTO geocache(query, lat, lon, accuracy, ts) VALUES(?,?,?,?,?)",
-            (text, lat, lon, accuracy, datetime.utcnow()),
+            (key, lat, lon, accuracy, datetime.now(timezone.utc)),
         )
         self.conn.commit()
         return lat, lon, accuracy
