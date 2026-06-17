@@ -2,7 +2,7 @@
 from __future__ import annotations
 
 from dataclasses import dataclass
-from datetime import datetime
+from datetime import datetime, timezone
 from typing import List
 import re
 
@@ -58,16 +58,25 @@ def extract_candidates(text: str, title: str = "") -> List[Candidate]:
     return [Candidate(ent.text) for ent in ents if getattr(ent, "label_", "") in {"GPE", "LOC"}]
 
 
+def _ensure_aware(dt: datetime) -> datetime:
+    if dt.tzinfo is None:
+        return dt.replace(tzinfo=timezone.utc)
+    return dt
+
+
 def extract_event_time(meta: str | datetime | None) -> datetime:
     if isinstance(meta, datetime):
-        return meta
+        return _ensure_aware(meta)
     if isinstance(meta, str):
-        dt = dateparser.parse(meta) if dateparser else None
+        dt = dateparser.parse(meta, settings={"RETURN_AS_TIMEZONE_AWARE": True}) if dateparser else None
         if not dt:
-            dt = dateutil_parser.parse(meta, fuzzy=True)
+            try:
+                dt = dateutil_parser.parse(meta, fuzzy=True)
+            except Exception:
+                dt = None
         if dt:
-            return dt
-    return datetime.utcnow()
+            return _ensure_aware(dt)
+    return datetime.now(timezone.utc)
 
 
 KEYWORDS = [

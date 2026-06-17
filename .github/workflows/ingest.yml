@@ -14,20 +14,23 @@ jobs:
         with:
           python-version: '3.11'
       - name: Install dependencies
-        run: pip install -r requirements.txt
+        run: |
+          pip install -r requirements.txt
+          python -m spacy download en_core_web_sm
       - name: Run ingestion
         env:
+          POSTGIS_DSN: ${{ secrets.POSTGIS_DSN }}
           FLIGHT_DATA_URL: ${{ secrets.FLIGHT_DATA_URL }}
           PERMIT_DATA_URL: ${{ secrets.PERMIT_DATA_URL }}
         run: python ingest.py
-      - name: Commit results
+      - name: Commit GeoJSON output (if PostGIS not configured)
         run: |
           git config user.name 'github-actions[bot]'
           git config user.email 'github-actions[bot]@users.noreply.github.com'
-          git add data docs
+          git add data/geojson data/events.csv 2>/dev/null || true
           if git diff --cached --quiet; then
             echo 'No changes to commit'
           else
-            git commit -m 'Update data via ingest workflow'
+            git commit -m 'Update exported data via ingest workflow'
             git push
           fi
