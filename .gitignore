@@ -1,5 +1,13 @@
+# Python
+__pycache__/
+*.py[cod]
+*.pyo
+.venv/
+*.egg-info/
+
 # Ignore generated database
 /data/*.db
+/data/*.sqlite
 # Ignore generated geojson files
 /data/geojson/*.geojson
 /data/*.csv
